@@ -1,5 +1,5 @@
-const { EmbedBuilder, ApplicationCommandType } = require('discord.js');
-const ApplicationCommand = require('../../structure/ApplicationCommand');
+const { EmbedBuilder } = require('discord.js');
+const MessageCommand = require('../../structure/MessageCommand');
 
 const wordList = [
     'ABADI', 'ACARA', 'ADZAN', 'AKHIR', 'AKTIF', 'ALAMI', 'ALASAN', 'ALBUM', 'AMBIL', 'ANAKAN',
@@ -213,25 +213,22 @@ const wordList = [
     'WANGI', 'WANITA', 'WARAS', 'WARGA', 'WARIA', 'WARIS', 'WARNA', 'WARTA', 'WARU', 'WARUN',
     'WASAL', 'WASAN', 'WASI', 'WASIA', 'WASIK', 'WASIL', 'WASIR', 'WASIT', 'WASPA', 'WATAK',
     'WATAN', 'WATAS', 'WATES', 'WAWAS', 'WAYAN', 'WAYAR', 'WIDIA', 'WIJAY', 'WIKAN', 'WILAY',
-    'WINDU', 'WIRA', 'WIRAM', 'WIRAS', 'WISMA', 'WORTEL', 'WUDHU', 'WUJUD', 'WUKUF', 'WULAN',
+    'WINDU', 'WIRA', 'WIRAAM', 'WIRAS', 'WISMA', 'WORTEL', 'WUDHU', 'WUJUD', 'WUKUF', 'WULAN',
     'WUWUN', 'XENON', 'YAKIN', 'YANG', 'YATIM', 'YAYAS', 'YOGA', 'YUANA', 'YUDAS', 'YUNAN',
     'YUNIO', 'YURID', 'YUSUF', 'ZABUR', 'ZAKAT', 'ZALIM', 'ZAMAN', 'ZAMBR', 'ZAMZA', 'ZARAH',
     'ZAT', 'ZEBRA', 'ZEN', 'ZIARA', 'ZIGOT', 'ZIKIR', 'ZODIA', 'ZONA', 'ZULFI', 'ZULHU', 'ZULKA'
 ];
 
-
-module.exports = new ApplicationCommand({
+module.exports = new MessageCommand({
     command: {
         name: 'wordle',
-        description: 'Bermain tebak kata 5 huruf (Wordle) bersama Hanekawa.',
-        type: ApplicationCommandType.ChatInput
+        description: 'Bermain tebak kata 5 huruf (Wordle) bersama Hanekawa.'
     },
-    run: async (client, interaction) => {
+    run: async (client, message, args) => {
         const targetWord = wordList[Math.floor(Math.random() * wordList.length)];
         let attempts = 0;
         const maxAttempts = 6;
         const guesses = [];
-        const board = [];
 
         const embed = new EmbedBuilder()
             .setAuthor({ name: 'Hanekawa Wordle', iconURL: client.user.displayAvatarURL() })
@@ -240,18 +237,14 @@ module.exports = new ApplicationCommand({
             .setColor('#f8a5c2')
             .setFooter({ text: 'Gunakan h?stop untuk menyerah.' });
 
-        await interaction.reply({ embeds: [embed] });
+        await message.reply({ embeds: [embed] });
 
-        const filter = m => m.author.id === interaction.user.id && m.content.length === 5;
-        const collector = interaction.channel.createMessageCollector({ filter, time: 300000 }); // 5 menit
+        const filter = m => m.author.id === message.author.id && m.content.length === 5;
+        const collector = message.channel.createMessageCollector({ filter, time: 300000 });
 
         collector.on('collect', async m => {
             const guess = m.content.toUpperCase();
-
-            // Validasi: Harus huruf saja
-            if (!/^[A-Z]+$/.test(guess)) {
-                return m.reply('Hanya boleh menggunakan huruf ya!').then(msg => setTimeout(() => msg.delete().catch(() => { }), 3000));
-            }
+            if (!/^[A-Z]+$/.test(guess)) return;
 
             attempts++;
             const resultRow = checkWord(guess, targetWord);
@@ -268,19 +261,17 @@ module.exports = new ApplicationCommand({
 
             if (guess === targetWord) {
                 collector.stop('win');
-                return m.channel.send(`🎉 **Selamat!** Kamu berhasil menebak katanya: **${targetWord}** dalam ${attempts} percobaan!`);
+                return m.channel.send(`🎉 **Selamat!** Kamu berhasil menebak katanya: **${targetWord}**!`);
             }
 
             if (attempts >= maxAttempts) {
                 collector.stop('lose');
-                return m.channel.send(`😔 Sayang sekali, kamu kehabisan nyawa. Katanya adalah **${targetWord}**.`);
+                return m.channel.send(`😔 Sayang sekali, katanya adalah **${targetWord}**.`);
             }
         });
 
         collector.on('end', (collected, reason) => {
-            if (reason === 'time') {
-                interaction.followUp('Waktunya habis! Permainan dihentikan.');
-            }
+            if (reason === 'time') message.channel.send('Waktunya habis! Permainan Wordle dihentikan.');
         });
     }
 }).toJSON();
@@ -290,7 +281,6 @@ function checkWord(guess, target) {
     const targetArr = target.split('');
     const guessArr = guess.split('');
 
-    // Pertama: Cek yang benar posisi (Green)
     for (let i = 0; i < 5; i++) {
         if (guessArr[i] === targetArr[i]) {
             result[i] = '🟩';
@@ -299,7 +289,6 @@ function checkWord(guess, target) {
         }
     }
 
-    // Kedua: Cek yang ada tapi salah posisi (Yellow)
     for (let i = 0; i < 5; i++) {
         if (guessArr[i] !== null) {
             const index = targetArr.indexOf(guessArr[i]);
