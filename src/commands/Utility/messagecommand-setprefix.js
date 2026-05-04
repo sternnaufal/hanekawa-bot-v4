@@ -1,48 +1,33 @@
-const { Message } = require("discord.js");
-const DiscordBot = require("../../client/DiscordBot");
+const { PermissionsBitField } = require("discord.js");
 const MessageCommand = require("../../structure/MessageCommand");
 const config = require("../../config");
 
 module.exports = new MessageCommand({
     command: {
         name: 'setprefix',
-        description: 'Set prefix for this guild.',
-        aliases: []
+        description: 'Mengubah prefix bot untuk server ini.',
+        permissions: ['ManageGuild']
     },
-    options: {
-        cooldown: 5000
-    },
-    /**
-     * 
-     * @param {DiscordBot} client 
-     * @param {Message} message 
-     * @param {string[]} args
-     */
     run: async (client, message, args) => {
-        if (!args[0]) {
-            await message.reply({
-                content: 'You must provide the prefix!'
-            });
-
-            return;
+        if (!message.member.permissions.has(PermissionsBitField.Flags.ManageGuild)) {
+            return message.reply('Kamu butuh izin `Manage Server` untuk melakukan ini.');
         }
 
-        if (args[0].length > 5) {
-            await message.reply({
-                content: 'The prefix is too long! (' + args[0].length + ' > 5)'
-            });
-
-            return;
+        const newPrefix = args[0];
+        if (!newPrefix) {
+            return message.reply(`Gunakan: \`${config.commands.prefix}setprefix [prefix]\`. Contoh: \`${config.commands.prefix}setprefix !\``);
         }
 
-        if (args[0] === config.commands.prefix) {
+        if (newPrefix.length > 5) {
+            return message.reply('Prefix terlalu panjang! Maksimal 5 karakter.');
+        }
+
+        if (newPrefix === config.commands.prefix) {
             client.database.delete('prefix-' + message.guild.id);
         } else {
-            client.database.set('prefix-' + message.guild.id, args[0]);
+            client.database.set('prefix-' + message.guild.id, newPrefix);
         }
 
-        await message.reply({
-            content: 'Successfully updated the prefix to \`' + args[0] + '\`.'
-        });
+        await message.reply(`✅ Prefix berhasil diubah menjadi \`${newPrefix}\`.`);
     }
 }).toJSON();
