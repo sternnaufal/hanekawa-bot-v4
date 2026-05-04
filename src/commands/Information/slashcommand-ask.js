@@ -21,17 +21,23 @@ module.exports = new ApplicationCommand({
         const prompt = interaction.options.getString('pertanyaan');
         await interaction.deferReply();
 
+        // Ditambahkan instruksi batasan kata di context
         const hanekawaContext = `Kamu adalah Hanekawa Tsubasa dari serial Monogatari. Kamu pintar, sopan, dan rendah hati. 
         Ciri khasmu adalah mengatakan 'Aku tidak tahu segalanya, aku hanya tahu apa yang aku tahu' jika ditanya hal sulit. 
-        Jawab pertanyaan berikut dengan gaya bicaramu yang khas sebagai Hanekawa.`;
+        Jawab pertanyaan berikut dengan gaya bicaramu yang khas sebagai Hanekawa.
+        PENTING: Berikan jawaban yang ringkas, padat, dan tidak terlalu panjang (maksimal sekitar 150-200 kata).`;
 
         // 1. Coba menggunakan Gemini
         try {
             if (!process.env.GEMINI_API_KEY) throw new Error('NO_GEMINI_KEY');
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            // Menggunakan gemini-2.5-flash yang tersedia di sistem kamu
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+            const model = genAI.getGenerativeModel({ 
+                model: "gemini-2.5-flash",
+                generationConfig: {
+                    maxOutputTokens: 500, // Membatasi output tokens (sekitar 300-400 kata)
+                }
+            });
 
             const result = await model.generateContent(`${hanekawaContext}\n\nPertanyaan: ${prompt}`);
             const response = await result.response;
@@ -53,6 +59,7 @@ module.exports = new ApplicationCommand({
                         { role: "system", content: hanekawaContext },
                         { role: "user", content: prompt }
                     ],
+                    max_tokens: 500, // Membatasi output tokens di DeepSeek
                     stream: false
                 }, {
                     headers: {
