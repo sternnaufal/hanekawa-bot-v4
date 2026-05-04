@@ -19,7 +19,7 @@ module.exports = new MessageCommand({
         const embed = new EmbedBuilder()
             .setAuthor({ name: 'Hanekawa Bot Info', iconURL: client.user.displayAvatarURL() })
             .setTitle('Informasi Detail Bot')
-            .setDescription(`Halo! Aku adalah Hanekawa Bot, asisten pintar untuk servermu.\n\n**Made by <@1479796000473219186>**`)
+            .setDescription(`Halo! Aku adalah Hanekawa Tsubasa, asisten pintar untuk servermu.\n\n**Made by <@1479796000473219186>**`)
             .setThumbnail(client.user.displayAvatarURL({ dynamic: true, size: 1024 }))
             .setColor('#f8a5c2')
             .addFields(
