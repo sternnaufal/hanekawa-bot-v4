@@ -21,28 +21,41 @@ module.exports = new ApplicationCommand({
         await interaction.deferReply();
 
         try {
-            // Menggunakan REST API Wikipedia Indonesia
-            const response = await axios.get(`https://id.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query.replace(/ /g, '_'))}`);
-            
-            if (response.data.type === 'disambiguation' || !response.data.extract) {
-                return interaction.editReply(`Hasil pencarian untuk "${query}" terlalu luas atau tidak ditemukan.`);
+            // 1. Cari judul artikel yang paling relevan
+            const searchResponse = await axios.get(`https://id.wikipedia.org/w/api.php`, {
+                params: {
+                    action: 'query',
+                    list: 'search',
+                    srsearch: query,
+                    format: 'json',
+                    origin: '*'
+                }
+            });
+
+            const searchResults = searchResponse.data.query.search;
+            if (searchResults.length === 0) {
+                return interaction.editReply(`Maaf, aku tidak bisa menemukan artikel tentang "${query}" di Wikipedia.`);
             }
 
+            const pageTitle = searchResults[0].title;
+
+            // 2. Ambil ringkasan dari judul yang ditemukan
+            const summaryResponse = await axios.get(`https://id.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle.replace(/ /g, '_'))}`);
+            
+            const data = summaryResponse.data;
+
             const embed = new EmbedBuilder()
-                .setTitle(response.data.title)
-                .setURL(response.data.content_urls.desktop.page)
-                .setThumbnail(response.data.thumbnail ? response.data.thumbnail.source : null)
+                .setTitle(data.title)
+                .setURL(data.content_urls.desktop.page)
+                .setThumbnail(data.thumbnail ? data.thumbnail.source : null)
                 .setColor('#ffffff')
-                .setDescription(response.data.extract)
+                .setDescription(data.extract || 'Tidak ada ringkasan tersedia.')
                 .setFooter({ text: 'Sumber: Wikipedia Indonesia' });
 
             await interaction.editReply({ embeds: [embed] });
         } catch (error) {
-            if (error.response && error.response.status === 404) {
-                return interaction.editReply(`Maaf, aku tidak bisa menemukan artikel tentang "${query}" di Wikipedia.`);
-            }
-            console.error(error);
-            await interaction.editReply('Terjadi kesalahan saat menghubungi Wikipedia.');
+            console.error('Wikipedia Error:', error.message);
+            await interaction.editReply('Terjadi kesalahan saat menghubungi Wikipedia. Pastikan kata kunci yang kamu masukkan benar.');
         }
     }
 }).toJSON();
