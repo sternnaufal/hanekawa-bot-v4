@@ -30,7 +30,8 @@ module.exports = new ApplicationCommand({
             if (!process.env.GEMINI_API_KEY) throw new Error('NO_GEMINI_KEY');
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            // Menggunakan gemini-2.5-flash yang tersedia di sistem kamu
+            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
             const result = await model.generateContent(`${hanekawaContext}\n\nPertanyaan: ${prompt}`);
             const response = await result.response;
@@ -65,9 +66,14 @@ module.exports = new ApplicationCommand({
 
             } catch (deepseekError) {
                 console.error('All AI models failed:', deepseekError.message);
-                const errorMessage = geminiError.status === 429 
-                    ? 'Maaf, kuota pertanyaanku sedang habis di semua jalur. Coba lagi beberapa saat lagi ya...'
-                    : 'Aduh, kepalaku tiba-tiba pusing (Error AI). Bisa tanya lagi nanti?';
+                
+                let errorMessage = 'Aduh, kepalaku tiba-tiba pusing. Bisa tanya lagi nanti?';
+                
+                if (geminiError.message.includes('429')) {
+                    errorMessage = 'Maaf, kuota pertanyaanku sedang habis di semua jalur. Coba lagi beberapa saat lagi ya...';
+                } else if (deepseekError.message.includes('402')) {
+                    errorMessage = 'Maaf, saldo DeepSeek-ku sedang habis dan Gemini juga sedang error. Bisa coba lagi nanti?';
+                }
                 
                 await interaction.editReply(errorMessage);
             }
@@ -81,7 +87,7 @@ async function sendResponse(client, interaction, text, provider) {
     const embed = new EmbedBuilder()
         .setAuthor({ name: 'Hanekawa Tsubasa', iconURL: client.user.displayAvatarURL() })
         .setDescription(text)
-        .setColor(provider === 'Gemini 2.5' ? '#3a3a3a' : '#2f3136')
+        .setColor(provider.includes('Gemini') ? '#3a3a3a' : '#2f3136')
         .setFooter({ text: `Powered by ${provider} | Ditanyakan oleh: ${interaction.user.username}` });
 
     await interaction.editReply({ embeds: [embed] });
