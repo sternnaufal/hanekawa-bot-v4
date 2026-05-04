@@ -9,6 +9,9 @@ module.exports = new MessageCommand({
         description: 'Mainkan mesin slot Hanekawa (Prefix version).',
         aliases: ['s']
     },
+    options: {
+        cooldown: 10000 // 10 detik
+    },
     run: async (client, message, args) => {
         // Acak 3 slot
         const slot1 = emojis[Math.floor(Math.random() * emojis.length)];

@@ -9,6 +9,9 @@ module.exports = new ApplicationCommand({
         description: 'Mainkan mesin slot Hanekawa (Hanya untuk seru-seruan!).',
         type: ApplicationCommandType.ChatInput
     },
+    options: {
+        cooldown: 10000 // 10 detik
+    },
     run: async (client, interaction) => {
         // Acak 3 slot
         const slot1 = emojis[Math.floor(Math.random() * emojis.length)];
