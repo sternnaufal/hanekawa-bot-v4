@@ -5,7 +5,7 @@ const axios = require('axios');
 module.exports = new ApplicationCommand({
     command: {
         name: 'faktaunik',
-        description: 'Memberikan fakta unik acak (Bahasa Indonesia).',
+        description: 'Memberikan fakta unik acak (bahasa inggris).',
         type: ApplicationCommandType.ChatInput
     },
     run: async (client, interaction) => {

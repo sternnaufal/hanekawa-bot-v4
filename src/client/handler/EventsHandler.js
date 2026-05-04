@@ -22,10 +22,16 @@ class EventsHandler {
         for (const directory of readdirSync('./src/events/')) {
             for (const file of readdirSync('./src/events/' + directory).filter((f) => f.endsWith('.js'))) {
                 try {
+                    const path = '../../events/' + directory + '/' + file;
+                    
+                    try {
+                        delete require.cache[require.resolve(path)];
+                    } catch {}
+
                     /**
                      * @type {Event['data']}
                      */
-                    const module = require('../../events/' + directory + '/' + file);
+                    const module = require(path);
 
                     if (!module) continue;
 
@@ -54,6 +60,12 @@ class EventsHandler {
         }
 
         success(`Successfully loaded ${total} events.`);
+    }
+
+    reload = () => {
+        // NOTE: Old listeners for 'messageCreate' etc will still be active.
+        // For a full event reload, a bot restart is recommended.
+        this.load();
     }
 }
 

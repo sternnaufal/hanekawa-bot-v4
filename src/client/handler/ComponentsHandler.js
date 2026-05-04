@@ -19,10 +19,16 @@ class ComponentsHandler {
         for (const directory of readdirSync('./src/components/')) {
             for (const file of readdirSync('./src/components/' + directory).filter((f) => f.endsWith('.js'))) {
                 try {
+                    const path = '../../components/' + directory + '/' + file;
+                    
+                    try {
+                        delete require.cache[require.resolve(path)];
+                    } catch {}
+
                     /**
                      * @type {Component['data'] | AutocompleteComponent['data']}
                      */
-                    const module = require('../../components/' + directory + '/' + file);
+                    const module = require(path);
 
                     if (!module) continue;
 
