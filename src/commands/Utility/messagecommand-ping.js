@@ -1,5 +1,3 @@
-const { Message } = require("discord.js");
-const DiscordBot = require("../../client/DiscordBot");
 const MessageCommand = require("../../structure/MessageCommand");
 
 module.exports = new MessageCommand({
@@ -12,12 +10,6 @@ module.exports = new MessageCommand({
     options: {
         cooldown: 5000
     },
-    /**
-     * 
-     * @param {DiscordBot} client 
-     * @param {Message} message 
-     * @param {string[]} args
-     */
     run: async (client, message, args) => {
         await message.reply({
             content: '**Pong!** ' + client.ws.ping + 'ms'

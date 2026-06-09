@@ -1,5 +1,4 @@
-const { ChatInputCommandInteraction, ApplicationCommandOptionType } = require("discord.js");
-const DiscordBot = require("../../client/DiscordBot");
+const { ApplicationCommandOptionType } = require("discord.js");
 const ApplicationCommand = require("../../structure/ApplicationCommand");
 
 module.exports = new ApplicationCommand({
@@ -18,16 +17,10 @@ module.exports = new ApplicationCommand({
     options: {
         botDevelopers: true
     },
-    /**
-     * 
-     * @param {DiscordBot} client 
-     * @param {ChatInputCommandInteraction} interaction 
-     */
     run: async (client, interaction) => {
         const chosen = interaction.options.getString('option', true);
-
         await interaction.reply({
-            content: `It seems you like **` + chosen + '**.' 
+            content: `It seems you like **` + chosen + '**.'
         });
     }
 }).toJSON();

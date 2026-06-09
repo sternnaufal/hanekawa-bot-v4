@@ -1,16 +1,10 @@
 const { info, error, success } = require('../../utils/Console');
 const { readdirSync } = require('fs');
 const DiscordBot = require('../DiscordBot');
-const Component = require('../../structure/Component');
-const AutocompleteComponent = require('../../structure/AutocompleteComponent');
 
 class ComponentsHandler {
     client;
 
-    /**
-     *
-     * @param {DiscordBot} client 
-     */
     constructor(client) {
         this.client = client;
     }
@@ -20,14 +14,11 @@ class ComponentsHandler {
             for (const file of readdirSync('./src/components/' + directory).filter((f) => f.endsWith('.js'))) {
                 try {
                     const path = '../../components/' + directory + '/' + file;
-                    
+
                     try {
                         delete require.cache[require.resolve(path)];
                     } catch {}
 
-                    /**
-                     * @type {Component['data'] | AutocompleteComponent['data']}
-                     */
                     const module = require(path);
 
                     if (!module) continue;
@@ -39,22 +30,18 @@ class ComponentsHandler {
                         }
 
                         switch (module.type) {
-                            case 'modal': {
+                            case 'modal':
                                 this.client.collection.components.modals.set(module.customId, module);
                                 break;
-                            }
-                            case 'select': {
+                            case 'select':
                                 this.client.collection.components.selects.set(module.customId, module);
                                 break;
-                            }
-                            case 'button': {
+                            case 'button':
                                 this.client.collection.components.buttons.set(module.customId, module);
                                 break;
-                            }
-                            default: {
+                            default:
                                 error('Invalid component type (not: button, select, or modal): ' + file);
                                 continue;
-                            }
                         }
 
                         info(`Loaded new component (type: ${module.type}) : ` + file);

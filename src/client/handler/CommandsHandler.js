@@ -2,16 +2,10 @@ const { REST, Routes } = require('discord.js');
 const { info, error, success } = require('../../utils/Console');
 const { readdirSync } = require('fs');
 const DiscordBot = require('../DiscordBot');
-const ApplicationCommand = require('../../structure/ApplicationCommand');
-const MessageCommand = require('../../structure/MessageCommand');
 
 class CommandsHandler {
     client;
 
-    /**
-     *
-     * @param {DiscordBot} client 
-     */
     constructor(client) {
         this.client = client;
     }
@@ -21,14 +15,11 @@ class CommandsHandler {
             for (const file of readdirSync('./src/commands/' + directory).filter((f) => f.endsWith('.js'))) {
                 try {
                     const path = '../../commands/' + directory + '/' + file;
-                    
+
                     try {
                         delete require.cache[require.resolve(path)];
                     } catch {}
 
-                    /**
-                     * @type {ApplicationCommand['data'] | MessageCommand['data']}
-                     */
                     const module = require(path);
 
                     if (!module) continue;
@@ -78,11 +69,7 @@ class CommandsHandler {
 
         this.load();
     }
-    
-    /**
-     * @param {{ enabled: boolean, guildId: string }} development
-     * @param {Partial<import('discord.js').RESTOptions>} restOptions 
-     */
+
     registerApplicationCommands = async (development, restOptions = null) => {
         const rest = new REST(restOptions ? restOptions : { version: '10' }).setToken(this.client.token);
 

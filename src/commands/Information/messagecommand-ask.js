@@ -21,7 +21,7 @@ module.exports = new MessageCommand({
         try {
             if (!process.env.GEMINI_API_KEY) throw new Error('NO_GEMINI_KEY');
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ 
+            const model = genAI.getGenerativeModel({
                 model: "gemini-2.5-flash",
                 generationConfig: { maxOutputTokens: 500 }
             });
@@ -34,6 +34,8 @@ module.exports = new MessageCommand({
         } catch (geminiError) {
             console.log('Gemini failed, trying DeepSeek...', geminiError.message);
             try {
+                if (!process.env.DEEPSEEK_API_KEY) throw new Error('NO_DEEPSEEK_KEY');
+
                 const deepseekResponse = await axios.post('https://api.deepseek.com/chat/completions', {
                     model: "deepseek-chat",
                     messages: [

@@ -12,7 +12,6 @@ module.exports = new MessageCommand({
         if (!query) return message.reply('Tolong berikan kata kunci yang ingin dicari. Contoh: `h?wikipedia Kucing`');
 
         try {
-            // 1. Cari judul artikel yang paling relevan
             const searchResponse = await axios.get(`https://id.wikipedia.org/w/api.php`, {
                 params: {
                     action: 'query',
@@ -30,9 +29,8 @@ module.exports = new MessageCommand({
 
             const pageTitle = searchResults[0].title;
 
-            // 2. Ambil ringkasan dari judul yang ditemukan
             const summaryResponse = await axios.get(`https://id.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle.replace(/ /g, '_'))}`);
-            
+
             const data = summaryResponse.data;
 
             const embed = new EmbedBuilder()

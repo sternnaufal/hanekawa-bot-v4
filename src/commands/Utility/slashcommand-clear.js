@@ -10,7 +10,7 @@ module.exports = new ApplicationCommand({
             {
                 name: 'jumlah',
                 description: 'Jumlah pesan yang ingin dihapus (1-100).',
-                type: 4, // Integer
+                type: 4,
                 required: true,
                 min_value: 1,
                 max_value: 100

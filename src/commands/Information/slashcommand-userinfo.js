@@ -10,7 +10,7 @@ module.exports = new ApplicationCommand({
             {
                 name: 'target',
                 description: 'User yang ingin dicek profilnya.',
-                type: 6, // User type
+                type: 6,
                 required: false
             }
         ]

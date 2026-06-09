@@ -1,5 +1,4 @@
-const { MessageContextMenuCommandInteraction, MessageFlags } = require("discord.js");
-const DiscordBot = require("../../client/DiscordBot");
+const { MessageFlags } = require("discord.js");
 const ApplicationCommand = require("../../structure/ApplicationCommand");
 
 module.exports = new ApplicationCommand({
@@ -10,19 +9,11 @@ module.exports = new ApplicationCommand({
     options: {
         cooldown: 5000
     },
-    /**
-     * 
-     * @param {DiscordBot} client 
-     * @param {MessageContextMenuCommandInteraction} interaction 
-     */
     run: async (client, interaction) => {
         const target = interaction.targetMessage;
 
         if (!target) {
-            await interaction.reply({
-                content: `Invalid target!`
-            });
-
+            await interaction.reply({ content: `Invalid target!` });
             return;
         }
 
@@ -32,9 +23,6 @@ module.exports = new ApplicationCommand({
             `**Has attachments?** ${target.attachments.size > 0 ? 'Yes' : 'No'}`,
         ];
 
-        await interaction.reply({
-            content: array.join('\n'),
-            flags: MessageFlags.Ephemeral
-        });
+        await interaction.reply({ content: array.join('\n'), flags: MessageFlags.Ephemeral });
     }
 }).toJSON();

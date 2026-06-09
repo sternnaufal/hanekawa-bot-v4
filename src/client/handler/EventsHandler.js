@@ -1,17 +1,10 @@
 const { info, error, success } = require('../../utils/Console');
 const { readdirSync } = require('fs');
 const DiscordBot = require('../DiscordBot');
-const Component = require('../../structure/Component');
-const AutocompleteComponent = require('../../structure/AutocompleteComponent');
-const Event = require('../../structure/Event');
 
 class EventsHandler {
     client;
 
-    /**
-     *
-     * @param {DiscordBot} client 
-     */
     constructor(client) {
         this.client = client;
     }
@@ -23,14 +16,11 @@ class EventsHandler {
             for (const file of readdirSync('./src/events/' + directory).filter((f) => f.endsWith('.js'))) {
                 try {
                     const path = '../../events/' + directory + '/' + file;
-                    
+
                     try {
                         delete require.cache[require.resolve(path)];
                     } catch {}
 
-                    /**
-                     * @type {Event['data']}
-                     */
                     const module = require(path);
 
                     if (!module) continue;
@@ -48,7 +38,6 @@ class EventsHandler {
                         }
 
                         info(`Loaded new event: ` + file);
-
                         total++;
                     } else {
                         error('Invalid event type ' + module.__type__ + ' from event file ' + file);
@@ -63,8 +52,6 @@ class EventsHandler {
     }
 
     reload = () => {
-        // NOTE: Old listeners for 'messageCreate' etc will still be active.
-        // For a full event reload, a bot restart is recommended.
         this.load();
     }
 }

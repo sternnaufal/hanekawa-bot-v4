@@ -6,3 +6,6 @@ src/config.js
 .env
 database.yml
 terminal.log
+
+# Scratch / dev files
+scratch/

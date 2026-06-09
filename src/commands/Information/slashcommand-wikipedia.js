@@ -11,7 +11,7 @@ module.exports = new ApplicationCommand({
             {
                 name: 'query',
                 description: 'Apa yang ingin kamu cari di Wikipedia?',
-                type: 3, // String
+                type: 3,
                 required: true
             }
         ]
@@ -21,7 +21,6 @@ module.exports = new ApplicationCommand({
         await interaction.deferReply();
 
         try {
-            // 1. Cari judul artikel yang paling relevan
             const searchResponse = await axios.get(`https://id.wikipedia.org/w/api.php`, {
                 params: {
                     action: 'query',
@@ -39,9 +38,8 @@ module.exports = new ApplicationCommand({
 
             const pageTitle = searchResults[0].title;
 
-            // 2. Ambil ringkasan dari judul yang ditemukan
             const summaryResponse = await axios.get(`https://id.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle.replace(/ /g, '_'))}`);
-            
+
             const data = summaryResponse.data;
 
             const embed = new EmbedBuilder()

@@ -11,7 +11,7 @@ module.exports = new ApplicationCommand({
             {
                 name: 'query',
                 description: 'Judul anime yang ingin dicari.',
-                type: 3, // String
+                type: 3,
                 required: true
             }
         ]

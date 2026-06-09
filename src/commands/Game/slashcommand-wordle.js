@@ -231,12 +231,13 @@ module.exports = new ApplicationCommand({
         let attempts = 0;
         const maxAttempts = 6;
         const guesses = [];
-        const board = [];
+        const keyboard = {};
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(char => keyboard[char] = '⚪');
 
         const embed = new EmbedBuilder()
             .setAuthor({ name: 'Hanekawa Wordle', iconURL: client.user.displayAvatarURL() })
             .setTitle('🧩 Wordle Indonesia')
-            .setDescription(`Tebak kata **5 huruf** dalam **6 kali percobaan**.\n\nKetik kata 5 huruf di chat sekarang!`)
+            .setDescription(`Tebak kata **5 huruf** dalam **6 kali percobaan**.\n\nKetik kata 5 huruf di chat sekarang!\n\n**Huruf Tersedia:**\n${getKeyboardDisplay(keyboard)}`)
             .setColor('#f8a5c2')
             .setFooter({ text: 'Gunakan h?stop untuk menyerah.' });
 
@@ -254,13 +255,28 @@ module.exports = new ApplicationCommand({
             }
 
             attempts++;
-            const resultRow = checkWord(guess, targetWord);
+            const statusArr = checkWord(guess, targetWord);
+            const resultRow = statusArr.join('');
+            
+            // Update Keyboard
+            for (let i = 0; i < 5; i++) {
+                const char = guess[i];
+                const status = statusArr[i];
+                if (status === '🟩') {
+                    keyboard[char] = '🟩';
+                } else if (status === '🟨') {
+                    if (keyboard[char] !== '🟩') keyboard[char] = '🟨';
+                } else if (status === '⬛') {
+                    if (keyboard[char] === '⚪') keyboard[char] = '⬛';
+                }
+            }
+
             guesses.push(`${guess} \n${resultRow}`);
 
             const gameEmbed = new EmbedBuilder()
                 .setAuthor({ name: 'Hanekawa Wordle', iconURL: client.user.displayAvatarURL() })
                 .setTitle('🧩 Wordle Indonesia')
-                .setDescription(guesses.join('\n\n'))
+                .setDescription(`${guesses.join('\n\n')}\n\n**Huruf Tersedia:**\n${getKeyboardDisplay(keyboard)}`)
                 .setColor('#f8a5c2')
                 .setFooter({ text: `Percobaan: ${attempts}/${maxAttempts}` });
 
@@ -284,6 +300,16 @@ module.exports = new ApplicationCommand({
         });
     }
 }).toJSON();
+
+function getKeyboardDisplay(keyboard) {
+    const keys = Object.keys(keyboard);
+    let display = "";
+    for (let i = 0; i < keys.length; i++) {
+        display += `${keyboard[keys[i]]}\`${keys[i]}\` `;
+        if ((i + 1) % 9 === 0) display += "\n";
+    }
+    return display;
+}
 
 function checkWord(guess, target) {
     const result = new Array(5).fill('⬛');
@@ -310,5 +336,5 @@ function checkWord(guess, target) {
         }
     }
 
-    return result.join('');
+    return result;
 }

@@ -1,16 +1,10 @@
 const { PermissionsBitField, ChannelType, MessageFlags } = require("discord.js");
 const DiscordBot = require("../DiscordBot");
 const config = require("../../config");
-const MessageCommand = require("../../structure/MessageCommand");
 const { handleMessageCommandOptions, handleApplicationCommandOptions } = require("./CommandOptions");
-const ApplicationCommand = require("../../structure/ApplicationCommand");
 const { error } = require("../../utils/Console");
 
 class CommandsListener {
-    /**
-     * 
-     * @param {DiscordBot} client 
-     */
     constructor(client) {
         client.on('messageCreate', async (message) => {
             if (message.author.bot || message.channel.type === ChannelType.DM) return;
@@ -30,9 +24,6 @@ class CommandsListener {
 
             if (!commandInput.length) return;
 
-            /**
-             * @type {MessageCommand['data']}
-             */
             const command =
                 client.collection.message_commands.get(commandInput) ||
                 client.collection.message_commands.get(client.collection.message_commands_aliases.get(commandInput));
@@ -42,7 +33,6 @@ class CommandsListener {
             try {
                 if (command.options) {
                     const commandContinue = await handleMessageCommandOptions(message, command.options, command.command);
-
                     if (!commandContinue) return;
                 }
 
@@ -51,7 +41,6 @@ class CommandsListener {
                         content: config.messages.MISSING_PERMISSIONS,
                         flags: MessageFlags.Ephemeral
                     });
-
                     return;
                 }
 
@@ -68,9 +57,6 @@ class CommandsListener {
             if (!config.commands.application_commands.user_context && interaction.isUserContextMenuCommand()) return;
             if (!config.commands.application_commands.message_context && interaction.isMessageContextMenuCommand()) return;
 
-            /**
-             * @type {ApplicationCommand['data']}
-             */
             const command = client.collection.application_commands.get(interaction.commandName);
 
             if (!command) return;
@@ -78,7 +64,6 @@ class CommandsListener {
             try {
                 if (command.options) {
                     const commandContinue = await handleApplicationCommandOptions(interaction, command.options, command.command);
-
                     if (!commandContinue) return;
                 }
 

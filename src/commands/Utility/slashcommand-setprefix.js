@@ -11,7 +11,7 @@ module.exports = new ApplicationCommand({
             {
                 name: 'prefix',
                 description: 'Prefix baru (maksimal 5 karakter).',
-                type: 3, // String
+                type: 3,
                 required: true
             }
         ]

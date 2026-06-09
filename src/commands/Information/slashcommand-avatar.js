@@ -10,7 +10,7 @@ module.exports = new ApplicationCommand({
             {
                 name: 'user',
                 description: 'User yang ingin dilihat fotonya.',
-                type: 6, // USER
+                type: 6,
                 required: false
             }
         ]

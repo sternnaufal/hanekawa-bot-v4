@@ -1,6 +1,5 @@
 const { EmbedBuilder, ApplicationCommandType, version } = require('discord.js');
 const ApplicationCommand = require('../../structure/ApplicationCommand');
-const os = require('os');
 
 module.exports = new ApplicationCommand({
     command: {

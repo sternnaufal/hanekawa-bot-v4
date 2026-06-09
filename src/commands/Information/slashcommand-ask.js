@@ -12,7 +12,7 @@ module.exports = new ApplicationCommand({
             {
                 name: 'pertanyaan',
                 description: 'Apa yang ingin kamu tanyakan?',
-                type: 3, // String
+                type: 3,
                 required: true
             }
         ]
@@ -21,22 +21,18 @@ module.exports = new ApplicationCommand({
         const prompt = interaction.options.getString('pertanyaan');
         await interaction.deferReply();
 
-        // Ditambahkan instruksi batasan kata di context
         const hanekawaContext = `Kamu adalah Hanekawa Tsubasa dari serial Monogatari. Kamu pintar, sopan, dan rendah hati. 
         Ciri khasmu adalah mengatakan 'Aku tidak tahu segalanya, aku hanya tahu apa yang aku tahu' jika ditanya hal sulit. 
         Jawab pertanyaan berikut dengan gaya bicaramu yang khas sebagai Hanekawa.
         PENTING: Berikan jawaban yang ringkas, padat, dan tidak terlalu panjang (maksimal sekitar 150-200 kata).`;
 
-        // 1. Coba menggunakan Gemini
         try {
             if (!process.env.GEMINI_API_KEY) throw new Error('NO_GEMINI_KEY');
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ 
+            const model = genAI.getGenerativeModel({
                 model: "gemini-2.5-flash",
-                generationConfig: {
-                    maxOutputTokens: 500, // Membatasi output tokens (sekitar 300-400 kata)
-                }
+                generationConfig: { maxOutputTokens: 500 }
             });
 
             const result = await model.generateContent(`${hanekawaContext}\n\nPertanyaan: ${prompt}`);
@@ -47,7 +43,6 @@ module.exports = new ApplicationCommand({
         } catch (geminiError) {
             console.log('Gemini failed, trying DeepSeek...', geminiError.message);
 
-            // 2. Fallback ke DeepSeek
             try {
                 if (!process.env.DEEPSEEK_API_KEY) {
                     throw new Error('DeepSeek API Key tidak ditemukan di .env');
@@ -59,7 +54,7 @@ module.exports = new ApplicationCommand({
                         { role: "system", content: hanekawaContext },
                         { role: "user", content: prompt }
                     ],
-                    max_tokens: 500, // Membatasi output tokens di DeepSeek
+                    max_tokens: 500,
                     stream: false
                 }, {
                     headers: {
@@ -73,15 +68,15 @@ module.exports = new ApplicationCommand({
 
             } catch (deepseekError) {
                 console.error('All AI models failed:', deepseekError.message);
-                
+
                 let errorMessage = 'Aduh, kepalaku tiba-tiba pusing. Bisa tanya lagi nanti?';
-                
+
                 if (geminiError.message.includes('429')) {
                     errorMessage = 'Maaf, kuota pertanyaanku sedang habis di semua jalur. Coba lagi beberapa saat lagi ya...';
                 } else if (deepseekError.message.includes('402')) {
                     errorMessage = 'Maaf, saldo DeepSeek-ku sedang habis dan Gemini juga sedang error. Bisa coba lagi nanti?';
                 }
-                
+
                 await interaction.editReply(errorMessage);
             }
         }

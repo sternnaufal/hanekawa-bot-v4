@@ -1,5 +1,3 @@
-const { ChatInputCommandInteraction } = require("discord.js");
-const DiscordBot = require("../../client/DiscordBot");
 const ApplicationCommand = require("../../structure/ApplicationCommand");
 
 module.exports = new ApplicationCommand({
@@ -12,11 +10,6 @@ module.exports = new ApplicationCommand({
     options: {
         botDevelopers: true
     },
-    /**
-     * 
-     * @param {DiscordBot} client 
-     * @param {ChatInputCommandInteraction} interaction 
-     */
     run: async (client, interaction) => {
         await interaction.reply({
             content: `Click on the Button and select an option from the Select Menu below.`,
@@ -24,7 +17,7 @@ module.exports = new ApplicationCommand({
                 {
                     type: 1,
                     components: [{
-                        type: 2, // Button
+                        type: 2,
                         custom_id: 'example-button-id',
                         label: 'Example Button',
                         style: 1
@@ -33,7 +26,7 @@ module.exports = new ApplicationCommand({
                 {
                     type: 1,
                     components: [{
-                        type: 3, // String Select Menu
+                        type: 3,
                         custom_id: 'example-menu-id',
                         placeholder: 'Click here to choose an option',
                         options: [

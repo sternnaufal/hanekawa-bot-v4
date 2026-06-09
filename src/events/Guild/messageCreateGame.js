@@ -8,7 +8,6 @@ module.exports = new Event({
         const gameChannelId = client.database.get(`game-channel-${message.guild.id}`);
         if (!gameChannelId || message.channel.id !== gameChannelId) return;
 
-        // Cek jika pesan adalah command (abaikan)
         let prefix = require('../../config').commands.prefix;
         if (client.database.has('prefix-' + message.guild.id)) {
             prefix = client.database.get('prefix-' + message.guild.id);
@@ -17,9 +16,7 @@ module.exports = new Event({
 
         const words = message.content.trim().split(/\s+/);
         if (words.length > 1) {
-            return message.react('❌').then(() => {
-                // Optional: message.reply('Hanya boleh satu kata ya!')
-            });
+            return message.react('❌');
         }
 
         const inputWord = words[0].toLowerCase().replace(/[^a-z]/g, '');
@@ -28,7 +25,6 @@ module.exports = new Event({
         const lastWord = client.database.get(`game-word-${message.guild.id}`);
         const lastUserId = client.database.get(`game-user-${message.guild.id}`);
 
-        // Aturan: Tidak boleh orang yang sama berturut-turut
         if (lastUserId === message.author.id) {
             return message.reply('Sabar ya, tunggu orang lain dulu!').then(msg => {
                 setTimeout(() => {
@@ -54,7 +50,6 @@ module.exports = new Event({
             }
         }
 
-        // Simpan state baru
         client.database.set(`game-word-${message.guild.id}`, inputWord);
         client.database.set(`game-user-${message.guild.id}`, message.author.id);
         message.react('✅');
